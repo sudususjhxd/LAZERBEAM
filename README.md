@@ -113,3 +113,16 @@ MIT.
 Feel free to fork, adapt, or contribute chaos.
 
 ---
+
+## ☕ Support this madness
+
+If LAZERBEAM saved you hours of scrolling through blurry memes and cursed screenshots —  
+consider buying me a coffee. It helps me stay caffeinated enough to pump-out more absurd stuff like this one.
+
+<p align="center">
+  <a href="https://ko-fi.com/kotlasu" target="_blank">
+    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Buy Me a Coffee at ko-fi.com">
+  </a>
+</p>
+
+---
