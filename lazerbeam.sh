@@ -1,10 +1,22 @@
 #!/bin/bash
 
-# 🛸 LAZERBEAM BACKUP 3000
+# 👽☄️ LAZERBEAM BACKUP 3000
 # "ALL YOUR FILES ARE BELONG TO US"
 # iPhone photo backup script via GVFS & rsync with checksum verification
 
 set -euo pipefail
+
+# 🧱 Optional ASCII logo if "--ascii" is passed
+if [[ "${1:-}" == "--ascii" ]]; then
+    shift
+    if command -v figlet &>/dev/null; then
+        figlet -c "LAZERBEAM 3000"
+    elif command -v toilet &>/dev/null; then
+        toilet -f pagga --filter border "LAZERBEAM 3000"
+    else
+        echo "💡 ASCII mode requested, but figlet/toilet not found. Skipping banner."
+    fi
+fi
 
 # 🎯 SETUP
 USERNAME=$(whoami)
@@ -36,16 +48,27 @@ FOLDER_COUNT=$(echo "$FOLDER_LIST" | wc -l)
 
 echo "📁 Found $FOLDER_COUNT folder(s) to examine. Deploying lazers..."
 
-# 🔄 COPY FILES WITH CHECKSUM
+# 🔄 COPY FILES WITH CHECKSUM + PRELOAD
 INDEX=1
 while IFS= read -r FOLDER; do
     RELATIVE_PATH="${FOLDER#$IPHONE_MOUNT/}"
     TARGET_FOLDER="$BACKUP_DIR/$RELATIVE_PATH"
     mkdir -p "$TARGET_FOLDER"
 
-    echo -e "\n[$INDEX/$FOLDER_COUNT] 🔫 COPYING: $RELATIVE_PATH -> $TARGET_FOLDER"
+    echo -e "\n[$INDEX/$FOLDER_COUNT] 🔫 Checking $RELATIVE_PATH"
+    gio list "$FOLDER" >/dev/null 2>&1 || ls "$FOLDER" >/dev/null 2>&1
 
+    FILE_COUNT=$(find "$FOLDER" -maxdepth 1 -type f | wc -l)
+    if [ "$FILE_COUNT" -eq 0 ]; then
+        echo "⚠️ Skipping $RELATIVE_PATH – appears empty or locked."
+        ((INDEX++))
+        continue
+    fi
+
+    echo "📥 Copying $FILE_COUNT file(s) from $RELATIVE_PATH to $TARGET_FOLDER"
     rsync -ah --checksum --info=progress2 "$FOLDER/" "$TARGET_FOLDER/" | tee -a "$LOG_FILE"
+
+    sleep 1
     ((INDEX++))
 done <<< "$FOLDER_LIST"
 
