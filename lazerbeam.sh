@@ -14,14 +14,12 @@ LOG_FILE="$BACKUP_DIR/lazerbeam.log"
 
 mkdir -p "$BACKUP_DIR"
 
-# 🖼 ASCII BANNER (optional)
+# 💾 ASCII ART (optional)
 if [[ "${2:-}" == "--ascii" ]]; then
-    if command -v figlet &> /dev/null; then
-        figlet "LAZERBEAM"
-    elif command -v toilet &> /dev/null; then
-        toilet "LAZERBEAM"
-    else
-        echo "(ASCII mode requested, but figlet/toilet not found)"
+    if command -v figlet &>/dev/null; then
+        figlet "LAZERBEAM" && echo "     BACKUP 3000"
+    elif command -v toilet &>/dev/null; then
+        toilet --gay "LAZERBEAM BACKUP 3000"
     fi
 fi
 
@@ -47,7 +45,7 @@ FOLDER_COUNT=$(echo "$FOLDER_LIST" | wc -l)
 
 echo "📁 Found $FOLDER_COUNT folder(s) to examine. Deploying lazers..."
 
-# 🔄 COPY FILES WITH FEEDBACK
+# 🔄 COPY FILES WITH CHECKSUM + LIVE OUTPUT
 INDEX=1
 while IFS= read -r FOLDER; do
     RELATIVE_PATH="${FOLDER#$IPHONE_MOUNT/}"
@@ -68,12 +66,19 @@ while IFS= read -r FOLDER; do
 
     echo "📥 Copying $FILE_COUNT file(s) from $RELATIVE_PATH to $TARGET_FOLDER"
 
-    rsync -ah --checksum --info=progress2 "$FOLDER/" "$TARGET_FOLDER/" | tee -a "$LOG_FILE"
+    stdbuf -oL rsync -ah --checksum --info=progress2 "$FOLDER/" "$TARGET_FOLDER/" 2>&1 | tee -a "$LOG_FILE"
+
+    RSYNC_EXIT=$?
+    if [[ $RSYNC_EXIT -eq 0 ]]; then
+        echo "✅ Folder $RELATIVE_PATH copied successfully."
+    else
+        echo "⚠️ rsync returned code $RSYNC_EXIT. Something went weird."
+    fi
 
     ((INDEX++))
 done <<< "$FOLDER_LIST"
 
-# 🧪 POST-RUN: CHECK FOR DUPLICATES
+# 🧪 POST-RUN: CHECK FOR ACTUAL DUPLICATES
 DUPLICATE_LOG="$BACKUP_DIR/lazerbeam-duplicates.txt"
 echo -e "\n🧠 ANALYZING for true duplicates..."
 find "$BACKUP_DIR" -type f -exec sha256sum {} + | sort | uniq -d --check-chars=64 > "$DUPLICATE_LOG"
