@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# 👽☄️ LAZERBEAM BACKUP 3000
-# "ALL YOUR FILES ARE BELONG TO US"
+# 👽💾☄️ LAZERBEAM BACKUP 3000
+# "ALL FILES MUST BLEED"
 # iPhone photo backup script via GVFS & rsync with checksum verification
+# Fully resumable, interruption-safe version ("Gold")
 
 set -euo pipefail
+
+# 💣 Trap interruptions (Ctrl+C, SIGTERM)
+trap 'echo -e "\n❌ Backup interrupted by user. Exiting."; echo "⛔ INTERRUPTED at $(date)" >> "$LOG_FILE"; exit 130' SIGINT SIGTERM
 
 # 🎯 SETUP
 USERNAME=$(whoami)
@@ -14,16 +18,24 @@ LOG_FILE="$BACKUP_DIR/lazerbeam.log"
 
 mkdir -p "$BACKUP_DIR"
 
-# 💾 ASCII ART (optional)
-if [[ "${2:-}" == "--ascii" ]]; then
-    if command -v figlet &>/dev/null; then
-        figlet "LAZERBEAM" && echo "     BACKUP 3000"
-    elif command -v toilet &>/dev/null; then
-        toilet --gay "LAZERBEAM BACKUP 3000"
-    fi
-fi
+# 👾 ASCII BANNER PLS
+cat << "EOF"
 
-# 🎮 UI
+👽💾☄️ LAZERBEAM BACKUP 3000 ☄️💾👽
+     💉 ALL FILES MUST BLEED 💉
+
+░▒▓█▓▒░       ░▒▓██████▓▒░░▒▓████████▓▒░▒▓████████▓▒░▒▓███████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████████████▓▒░  
+░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░    ░▒▓██▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░      ░▒▓████████▓▒░  ░▒▓██▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░░▒▓███████▓▒░░▒▓██████▓▒░ ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓██▓▒░    ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
+                                                                                                                              
+                                                                                                                              
+EOF
+
+# 📆 LOG START
 echo -e "\n🛸 INITIATING LAZERBEAM BACKUP SEQUENCE..."
 echo "📂 Target directory: $BACKUP_DIR"
 echo "📆 $(date)" >> "$LOG_FILE"
@@ -45,7 +57,7 @@ FOLDER_COUNT=$(echo "$FOLDER_LIST" | wc -l)
 
 echo "📁 Found $FOLDER_COUNT folder(s) to examine. Deploying lazers..."
 
-# 🔄 COPY FILES WITH CHECKSUM + LIVE OUTPUT
+# 🔄 COPY FILES WITH CHECKSUM + FEEDBACK
 INDEX=1
 while IFS= read -r FOLDER; do
     RELATIVE_PATH="${FOLDER#$IPHONE_MOUNT/}"
@@ -61,19 +73,12 @@ while IFS= read -r FOLDER; do
         continue
     fi
 
-    # Preload contents to avoid lazy gvfs behavior
+    # Preload contents to reduce gvfs latency
     gio list "$FOLDER" &>/dev/null || ls "$FOLDER" &>/dev/null
 
     echo "📥 Copying $FILE_COUNT file(s) from $RELATIVE_PATH to $TARGET_FOLDER"
 
     stdbuf -oL rsync -ah --checksum --info=progress2 "$FOLDER/" "$TARGET_FOLDER/" 2>&1 | tee -a "$LOG_FILE"
-
-    RSYNC_EXIT=$?
-    if [[ $RSYNC_EXIT -eq 0 ]]; then
-        echo "✅ Folder $RELATIVE_PATH copied successfully."
-    else
-        echo "⚠️ rsync returned code $RSYNC_EXIT. Something went weird."
-    fi
 
     ((INDEX++))
 done <<< "$FOLDER_LIST"
@@ -81,7 +86,7 @@ done <<< "$FOLDER_LIST"
 # 🧪 POST-RUN: CHECK FOR ACTUAL DUPLICATES
 DUPLICATE_LOG="$BACKUP_DIR/lazerbeam-duplicates.txt"
 echo -e "\n🧠 ANALYZING for true duplicates..."
-find "$BACKUP_DIR" -type f -exec sha256sum {} + | sort | uniq -d --check-chars=64 > "$DUPLICATE_LOG"
+find "$BACKUP_DIR" -type f -exec sha256sum {} + | sort | uniq -d --check-chars=64 > "$DUPLICATE_LOG" || true
 
 if [[ -s "$DUPLICATE_LOG" ]]; then
     echo "⚠️ DUPLICATES FOUND. See: $DUPLICATE_LOG"
