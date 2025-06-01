@@ -5,6 +5,34 @@
 # iPhone photo backup script via GVFS & rsync with checksum verification
 # Fully resumable, interruption-safe version ("Gold")
 
+# 🆘 Handle --help
+if [[ "${1:-}" == "--help" ]]; then
+  echo ""
+  echo "👽💾☄️  LAZERBEAM BACKUP 3000 ☄️💾👽"
+  echo ""
+  echo "A brutalist iPhone photo backup script for Linux."
+  echo ""
+  echo "🔧 What it does:"
+  echo " - Detects your iPhone mounted via GVFS (gphoto2)"
+  echo " - Copies all photo folders (e.g. 100APPLE, 101APPLE...)"
+  echo " - Uses rsync with checksums (resumable + safe)"
+  echo " - Logs all actions to a persistent logfile"
+  echo " - After copy, it verifies file count and size for each folder"
+  echo ""
+  echo "⚙️ Usage:"
+  echo "  ./lazerbeam.sh"
+  echo ""
+  echo "🧬 Optional environment variables:"
+  echo "  BACKUP_DIR   Override default backup location"
+  echo "  LOG_FILE     Override default logfile path"
+  echo ""
+  echo "📁 Default path:"
+  echo "  /var/home/<your-user>/Pictures/iphone-lazerbackup"
+  echo ""
+  echo "💡 TIP: Use 'mini-lazer' to only verify an existing backup without copying."
+  echo ""
+  exit 0
+fi
 set -euo pipefail
 
 # 💣 Trap interruptions (Ctrl+C, SIGTERM)
@@ -98,3 +126,55 @@ fi
 # 🏁 DONE
 echo -e "\n🚀 BACKUP COMPLETE. All your JPEG are belong to us."
 echo "✅ $(date) — SUCCESS" >> "$LOG_FILE"
+
+# 📊 MINI-LAZER VERIFICATION PHASE
+
+echo ""
+echo "🧪 FINAL BACKUP VERIFICATION 🧪"
+echo ""
+
+printf "📁 %-15s │ 📱 iPhone │ 💾 Backup │ 📦 Size │ ✅ Match?\n" "Folder"
+printf "────────────────────┼────────────┼────────────┼──────────┼────────────\n"
+
+total_files_iphone=0
+total_files_backup=0
+total_size_backup_mb=0
+
+for bfolder in "$BACKUP_DIR"/*/; do
+  fname=$(basename "$bfolder")
+
+  iphone_folder="$IPHONE_MOUNT/$fname"
+  if [ -d "$iphone_folder" ]; then
+    files_iphone=$(find "$iphone_folder" -type f 2>/dev/null | wc -l)
+  else
+    files_iphone=0
+  fi
+
+  files_backup=$(find "$bfolder" -type f | wc -l)
+  size_backup_mb=$(du -sm "$bfolder" | cut -f1)
+  total_files_iphone=$((total_files_iphone + files_iphone))
+  total_files_backup=$((total_files_backup + files_backup))
+  total_size_backup_mb=$((total_size_backup_mb + size_backup_mb))
+
+  if (( files_iphone == files_backup )); then
+    match_icon="✅"
+  elif (( files_backup > files_iphone )); then
+    match_icon="⚠️ OVER"
+  else
+    match_icon="❌"
+  fi
+
+  printf "📁 %-15s │ %10s │ %10s │ %8s │ %s\n" "$fname" "$files_iphone" "$files_backup" "${size_backup_mb}MB" "$match_icon"
+done
+
+echo ""
+echo "🔎 Scan summary: $total_files_backup files found in backup, total size: ${total_size_backup_mb}MB." | tee -a "$LOG_FILE"
+
+if (( total_files_iphone != total_files_backup )); then
+  diff=$((total_files_iphone - total_files_backup))
+  echo "💀 WARNING: $diff file(s) potentially missing from backup!" | tee -a "$LOG_FILE"
+  tput bel
+else
+  echo "🟢 All files accounted for. BACKUP VERIFIED." | tee -a "$LOG_FILE"
+  tput bel; sleep 0.2; tput bel
+fi
