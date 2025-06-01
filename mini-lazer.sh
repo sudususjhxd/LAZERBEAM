@@ -41,24 +41,6 @@ if [[ "${1:-}" == "--help" ]]; then
   exit 0
 fi
 
-
-if [[ "${1:-}" == "--help" ]]; then
-  echo ""
-  echo "🛰️  MINI-LAZER - iPhone Backup Verifier"
-  echo ""
-  echo "Usage: ./mini-lazer.sh"
-  echo ""
-  echo "This script checks if your iPhone photos were successfully copied into:"
-  echo "  $BACKUP_DIR"
-  echo ""
-  echo "Environment variables:"
-  echo "  BACKUP_DIR   Override default backup location"
-  echo ""
-  echo "Example:"
-  echo "  BACKUP_DIR=/mnt/storage/iphone ./mini-lazer.sh"
-  echo ""
-  exit 0
-fi
 # 🔍 MINI-LAZER: Verification-Only Mode
 # Checks backup integrity after iPhone photo sync
 
